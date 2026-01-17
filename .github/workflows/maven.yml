@@ -13,6 +13,11 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      checks: write
+      issues: write
+
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 11
@@ -26,7 +31,16 @@ jobs:
       run: mvn clean test -Dsuite=smoke
 
     - name: Upload a Build Artifact
+      if: always()
       uses: actions/upload-artifact@v6.0.0
       with:
         name: Logs
         path: logs/
+
+    - name: Publish Test Report
+      if: always()
+      uses: dorny/test-reporter@v1
+      with:
+        name: TestNG Results
+        path: target/surefire-reports/junitreports/TEST-*.xml
+        reporter: java-junit
